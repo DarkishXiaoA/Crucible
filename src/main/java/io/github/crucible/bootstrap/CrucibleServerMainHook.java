@@ -45,6 +45,7 @@ public class CrucibleServerMainHook {
         }
         propertiesToInject.forEach((key, value) -> System.setProperty((String) key, (String) value));
 
+
         if (!verifyLibraries()) {
             setupLibraries();
         } else {

@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
 public class CrucibleModContainer extends DummyModContainer implements Plugin {
     public static Logger logger = LogManager.getLogger("Crucible");  //Crucible - note: use it only after forge configured the logger!
     public static CrucibleModContainer instance;
-    public static Metrics metrics;
     private PluginLoader dummyPluginLoader;
     private PluginDescriptionFile dummyPluginDescription;
     private boolean isPluginEnabled = false;
@@ -84,7 +83,6 @@ public class CrucibleModContainer extends DummyModContainer implements Plugin {
         evt.registerServerCommand("crucible", new CrucibleCommand(evt.getServer()));
         getServer().getPluginManager().injectModPlugin(this);
         getServer().getPluginManager().enablePlugin(this);
-        metrics = new Metrics(this, 6555);
     }
 
     @Override
