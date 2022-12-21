@@ -258,7 +258,7 @@
                      s0epacketspawnobject.func_148996_a(MathHelper.floor_float((float)(entityleashknot.field_146063_b * 32)));
                      s0epacketspawnobject.func_148995_b(MathHelper.floor_float((float)(entityleashknot.field_146064_c * 32)));
                      s0epacketspawnobject.func_149005_c(MathHelper.floor_float((float)(entityleashknot.field_146062_d * 32)));
-@@ -607,13 +705,17 @@
+@@ -607,13 +705,19 @@
                  {
                      throw new IllegalArgumentException("Don\'t know how to add " + this.myEntity.getClass() + "!");
                  }
@@ -273,7 +273,9 @@
          }
 +        else
 +        {
-+            throw new IllegalArgumentException("Don\'t know how to add " + this.myEntity.getClass() + "! Report this error to mod author.");
++            //Not necessary throw
++            //throw new IllegalArgumentException("Don\'t know how to add " + this.myEntity.getClass() + "! Report this error to mod author.");
++            return null;
 +        }
      }
  
