@@ -198,7 +198,7 @@
      }
  
      public Chunk loadChunk(int p_73158_1_, int p_73158_2_)
-@@ -103,9 +206,9 @@
+@@ -103,9 +206,10 @@
  
      public Chunk loadChunk(int par1, int par2, Runnable runnable)
      {
@@ -206,12 +206,13 @@
 -        this.chunksToUnload.remove(Long.valueOf(k));
 -        Chunk chunk = (Chunk)this.loadedChunkHashMap.getValueByKey(k);
 +        this.chunksToUnload.remove(par1, par2);
-+        Chunk chunk = this.loadedChunkHashMap_KC.rawThermos().get(par1,par2); //Thermos replacement
++        Chunk chunk = this.getChunkIfLoaded(par1,par2);
++        //Chunk chunk = this.loadedChunkHashMap_KC.rawThermos().get(par1,par2); //Thermos replacement
 +        boolean newChunk = false;
          AnvilChunkLoader loader = null;
  
          if (this.currentChunkLoader instanceof AnvilChunkLoader)
-@@ -113,6 +216,8 @@
+@@ -113,6 +217,8 @@
              loader = (AnvilChunkLoader) this.currentChunkLoader;
          }
  
@@ -220,12 +221,11 @@
          // We can only use the queue for already generated chunks
          if (chunk == null && loader != null && loader.chunkExists(this.worldObj, par1, par2))
          {
-@@ -127,7 +232,12 @@
-             }
+@@ -128,6 +234,12 @@
          }
          else if (chunk == null)
--        {
-+        {      // KCauldron start
+         {
++            // KCauldron start
 +            if (runnable != null) {
 +                io.github.crucible.ChunkGenerator.INSTANCE.queueChunkGeneration(this, par1, par2, new net.minecraftforge.common.chunkio.ChunkIOExecutor.RunnableCallback(runnable));
 +                return null;
@@ -234,7 +234,7 @@
              chunk = this.originalLoadChunk(par1, par2);
          }
  
-@@ -142,18 +252,20 @@
+@@ -142,18 +254,20 @@
  
      public Chunk originalLoadChunk(int p_73158_1_, int p_73158_2_)
      {
@@ -260,7 +260,7 @@
              if (chunk == null)
              {
                  chunk = this.safeLoadChunk(p_73158_1_, p_73158_2_);
-@@ -176,30 +288,100 @@
+@@ -176,30 +290,101 @@
                          CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Exception generating new chunk");
                          CrashReportCategory crashreportcategory = crashreport.makeCategory("Chunk to be generated");
                          crashreportcategory.addCrashSection("Location", String.format("%d,%d", new Object[] {Integer.valueOf(p_73158_1_), Integer.valueOf(p_73158_2_)}));
@@ -328,28 +328,29 @@
 -        return chunk == null ? (!this.worldObj.findingSpawnPoint && !this.loadChunkOnProvideRequest ? this.defaultEmptyChunk : this.loadChunk(p_73154_1_, p_73154_2_)) : chunk;
 +
 +        // CraftBukkit start
-+        Chunk chunk = (Chunk) this.loadedChunkHashMap_KC.rawThermos().get(p_73154_1_, p_73154_2_);
++        Chunk chunk = this.getChunkIfLoaded(p_73154_1_,p_73154_2_);
++        //Chunk chunk = (Chunk) this.loadedChunkHashMap_KC.rawThermos().get(p_73154_1_, p_73154_2_);
 +        chunk = chunk == null ? (shouldLoadChunk() ? this.loadChunk(p_73154_1_, p_73154_2_) : this.defaultEmptyChunk) : chunk; // Cauldron handle forge server tick events and load the chunk within 5 seconds of the world being loaded (for chunk loaders)
 +
 +        if (chunk == this.defaultEmptyChunk)
 +        {
 +            return chunk;
 +        }
-+        
++
 +        if (chunk == null)
 +        {
 +        	logger.error("Provided chunk is null for (" +p_73154_1_ + ", " + p_73154_2_+") !");
 +        	return null;
 +        }
-+        
-+        try
-+        {
-+        	worldObj.isProfilingWorld();
-+        }
-+        catch (Throwable t)
-+        {
-+        	return chunk;
-+        }
++//
++//        try
++//        {
++//        	worldObj.isProfilingWorld();
++//        }
++//        catch (Throwable t)
++//        {
++//        	return chunk;
++//        }
 +        
 +        if ((p_73154_1_ != chunk.xPosition || p_73154_2_ != chunk.zPosition) && !worldObj.isProfilingWorld())
 +        {
@@ -369,7 +370,7 @@
      {
          if (this.currentChunkLoader == null)
          {
-@@ -209,6 +391,7 @@
+@@ -209,6 +394,7 @@
          {
              try
              {
@@ -377,7 +378,7 @@
                  Chunk chunk = this.currentChunkLoader.loadChunk(this.worldObj, p_73239_1_, p_73239_2_);
  
                  if (chunk != null)
-@@ -217,8 +400,11 @@
+@@ -217,8 +403,11 @@
  
                      if (this.currentChunkProvider != null)
                      {
@@ -389,7 +390,7 @@
                  }
  
                  return chunk;
-@@ -231,7 +417,7 @@
+@@ -231,7 +420,7 @@
          }
      }
  
@@ -398,7 +399,7 @@
      {
          if (this.currentChunkLoader != null)
          {
-@@ -246,7 +432,7 @@
+@@ -246,7 +435,7 @@
          }
      }
  
@@ -407,7 +408,7 @@
      {
          if (this.currentChunkLoader != null)
          {
-@@ -254,15 +440,18 @@
+@@ -254,15 +443,18 @@
              {
                  p_73242_1_.lastSaveTime = this.worldObj.getTotalWorldTime();
                  this.currentChunkLoader.saveChunk(this.worldObj, p_73242_1_);
@@ -427,7 +428,7 @@
          }
      }
  
-@@ -276,21 +465,59 @@
+@@ -276,21 +468,59 @@
  
              if (this.currentChunkProvider != null)
              {
@@ -490,7 +491,7 @@
  
              if (p_73151_1_)
              {
-@@ -309,7 +536,7 @@
+@@ -309,7 +539,7 @@
                  }
              }
          }
@@ -499,7 +500,7 @@
          return true;
      }
  
-@@ -325,36 +552,74 @@
+@@ -325,36 +555,74 @@
      {
          if (!this.worldObj.levelSaving)
          {
@@ -592,7 +593,7 @@
              if (this.currentChunkLoader != null)
              {
                  this.currentChunkLoader.chunkTick();
-@@ -371,7 +636,7 @@
+@@ -371,7 +639,7 @@
  
      public String makeString()
      {
@@ -601,7 +602,7 @@
      }
  
      public List getPossibleCreatures(EnumCreatureType p_73155_1_, int p_73155_2_, int p_73155_3_, int p_73155_4_)
-@@ -386,8 +651,55 @@
+@@ -386,8 +654,55 @@
  
      public int getLoadedChunkCount()
      {
